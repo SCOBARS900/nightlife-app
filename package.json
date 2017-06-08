@@ -18,7 +18,16 @@
   "homepage": "https://github.com/SCOBARS900/nightlife-app#readme",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.3",
     "cors": "^2.8.3",
-    "express": "^4.15.3"
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.6",
+    "express": "^4.15.3",
+    "express-session": "^1.15.3",
+    "mongoose": "^4.10.5",
+    "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0",
+    "passport-twitter": "^1.0.4"
   }
 }
