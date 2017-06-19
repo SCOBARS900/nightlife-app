@@ -1,6 +1,11 @@
 var express = require('express');
 var passport = require('passport');
+var yelp = require('yelp-fusion');
 var router = express.Router();
+var userFunctions = require('../controllers/userfunctions.js');
+var yelpFunctions = require('../controllers/yelpfunctions.js');
+var User = require('../models/user');
+var Bar = require('../models/bar');
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated())
@@ -8,8 +13,18 @@ function isLoggedIn(req, res, next) {
   res.redirect('/');
 }
 
-router.get('/', function(req, res, next) {
-    res.render('home.ejs');
+function isLoggedInVote (req, res, next) {
+    if (req.isAuthenticated()) {
+      return next();
+    } else {
+    req.flash('authmessage', "You have to Login to show that you're going.");
+    res.redirect('/');
+    }
+}
+
+
+router.get('/', yelpFunctions.yelpCleanToday, userFunctions.userHasCity, function(req, res) {
+    res.render('home.ejs', { authenticatemessage: req.flash('authmessage') });
 });
 
 router.get('/login', function(req, res) {
@@ -17,7 +32,7 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', passport.authenticate('local-login', {
-  successRedirect: '/success',
+  successRedirect: '/',
   failureRedirect: '/login',
   failureFlash: true,
 }));
@@ -27,7 +42,7 @@ router.get('/signup', function(req, res) {
 });
 
 router.post('/signup', passport.authenticate('local-signup', {
-  successRedirect: '/success',
+  successRedirect: '/',
   failureRedirect: '/signup',
   failureFlash: true,
 }));
@@ -39,16 +54,27 @@ router.get('/success', isLoggedIn, function(req, res) {
 router.get('/auth/twitter', passport.authenticate('twitter'));
 
 router.get('/auth/twitter/callback', passport.authenticate('twitter', {
-  successRedirect: '/success',
-  failureRedirect: '/home',
+  successRedirect: '/',
+  failureRedirect: '/',
 }));
 
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/auth/google/callback', passport.authenticate('google', {
-  successRedirect: '/success',
-  failureRedirect: '/home',
+  successRedirect: '/',
+  failureRedirect: '/',
 }));
+
+
+router.get('/search/:cityparam', yelpFunctions.yelpAuthenticate);
+
+router.post('/search', userFunctions.userLastCity);
+    
+
+    
+router.get('/bar/:barparam', yelpFunctions.yelpSpecific);
+    
+
 
 router.get('/logout', function(req, res) {
   req.logout();
@@ -56,21 +82,7 @@ router.get('/logout', function(req, res) {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+router.post('/registrybar', isLoggedInVote, yelpFunctions.yelpRegistry, yelpFunctions.yelpDelete );
 
 
 
